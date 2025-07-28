@@ -20,9 +20,18 @@
 <body class="bg-cover bg-center min-h-screen flex flex-col transition-colors duration-1000 ease-in-out">
     <!-- Header Section -->
     <header class="fixed top-0 left-0 w-full bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl p-4 shadow-md z-10 rounded-b-3xl transform transition-all duration-700 ease-in-out">
-        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="container mx-auto flex items-center justify-between gap-4">
             <h1 class="text-4xl font-extrabold text-white text-shadow-xs tracking-wide animate-fade-in-down">Smart Weather Assistant</h1>
-            <div class="search-box flex items-center space-x-3 w-full md:w-auto">
+            
+            <!-- Hamburger Menu Button (Mobile Only) -->
+            <button id="hamburgerBtn" class="p-2 text-white rounded-lg md:hidden focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </button>
+
+            <!-- Search Box and Buttons (Desktop View) -->
+            <div class="search-box hidden md:flex items-center space-x-3 w-full md:w-auto">
                 <input type="text" id="cityInput" placeholder="Nhập tên thành phố..." class="p-3 rounded-xl bg-white bg-opacity-25 text-white placeholder-white focus:outline-none focus:ring-3 focus:ring-blue-400 focus:ring-opacity-75 flex-grow text-lg shadow-inner-sm transition-all duration-300">
                 <button id="searchBtn" class="p-3 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group">
                     <!-- Search Icon SVG -->
@@ -41,6 +50,36 @@
                     <svg id="darkModeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 transition-transform duration-300 group-hover:scale-110">
                         <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.173.64l-.397 2.013a4.412 4.412 0 002.572 2.572l2.014-.396a.75.75 0 01.64.172 7.501 7.501 0 01-9.485 9.485A.75.75 0 011.718 14.472a7.501 7.501 0 017.81-12.754z" clip-rule="evenodd" />
                     </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Container (Hidden by default) -->
+        <div id="mobileMenu" class="mobile-menu-container fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-95 backdrop-filter backdrop-blur-lg z-50 transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col items-center justify-center p-6 md:hidden">
+            <button id="closeMenuBtn" class="absolute top-6 right-6 p-2 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="flex flex-col items-center space-y-6 w-full max-w-sm">
+                <input type="text" id="cityInputMobile" placeholder="Nhập tên thành phố..." class="p-4 rounded-xl bg-white bg-opacity-25 text-white placeholder-white focus:outline-none focus:ring-3 focus:ring-blue-400 focus:ring-opacity-75 w-full text-xl shadow-inner-sm transition-all duration-300">
+                <button id="searchBtnMobile" class="p-4 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group w-full text-xl font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 mr-2">
+                        <path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z" clip-rule="evenodd" />
+                    </svg>
+                    Tìm kiếm
+                </button>
+                <button id="locationBtnMobile" class="p-4 bg-gradient-to-br from-green-500 to-teal-600 text-white rounded-xl hover:from-green-600 hover:to-teal-700 transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group w-full text-xl font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 mr-2">
+                        <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.04c1.62-.951 3.536-2.004 5.168-3.073A3.75 3.75 0 0022.5 15.75V9.456c0-1.133-.658-2.278-1.606-3.053L15.37 1.628a1.875 1.875 0 00-2.694 0l-5.36 4.775A4.5 4.5 0 004.5 9.456v6.294c0 1.133.658 2.277 1.606 3.052l5.36 4.776zM12 15.75a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                    </svg>
+                    Vị trí hiện tại
+                </button>
+                <button id="darkModeToggleMobile" class="p-4 bg-gradient-to-br from-gray-700 to-gray-900 text-white rounded-xl hover:from-gray-800 hover:to-black transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group w-full text-xl font-semibold">
+                    <svg id="darkModeIconMobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 mr-2">
+                        <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.173.64l-.397 2.013a4.412 4.412 0 002.572 2.572l2.014-.396a.75.75 0 01.64.172 7.501 7.501 0 01-9.485 9.485A.75.75 0 011.718 14.472a7.501 7.501 0 017.81-12.754z" clip-rule="evenodd" />
+                    </svg>
+                    Chế độ tối
                 </button>
             </div>
         </div>
@@ -156,7 +195,7 @@
 
     <!-- Footer Section -->
     <footer class="w-full bg-gray-900 bg-opacity-60 p-5 text-center text-white text-md rounded-t-4xl mt-auto shadow-inner-sm">
-        <p>© 2025 Smart Weather | GitHub Pages</p>
+        <p>© 2025 Copyright by Minh Quân  | GitHub Pages</p>
     </footer>
 
     <!-- JavaScript file -->

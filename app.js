@@ -4,11 +4,22 @@ const API_KEY = '31bb9df826339f11169d386a48fd3698';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5/forecast';
 
 // Get DOM elements
-const cityInput = document.getElementById('cityInput');
-const searchBtn = document.getElementById('searchBtn');
-const locationBtn = document.getElementById('locationBtn');
-const darkModeToggle = document.getElementById('darkModeToggle');
-const darkModeIcon = document.getElementById('darkModeIcon'); // Get the SVG icon element
+const cityInput = document.getElementById('cityInput'); // Desktop search input
+const searchBtn = document.getElementById('searchBtn'); // Desktop search button
+const locationBtn = document.getElementById('locationBtn'); // Desktop location button
+const darkModeToggle = document.getElementById('darkModeToggle'); // Desktop dark mode toggle
+const darkModeIcon = document.getElementById('darkModeIcon'); // Desktop dark mode icon
+
+// Mobile menu elements
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+const closeMenuBtn = document.getElementById('closeMenuBtn');
+const cityInputMobile = document.getElementById('cityInputMobile');
+const searchBtnMobile = document.getElementById('searchBtnMobile');
+const locationBtnMobile = document.getElementById('locationBtnMobile');
+const darkModeToggleMobile = document.getElementById('darkModeToggleMobile');
+const darkModeIconMobile = document.getElementById('darkModeIconMobile');
+
 
 const weatherInfo = document.getElementById('weatherInfo');
 const currentCity = document.getElementById('currentCity');
@@ -18,40 +29,75 @@ const currentHumidity = document.getElementById('currentHumidity');
 const currentWind = document.getElementById('currentWind');
 const weatherIconSpan = document.getElementById('weatherIcon'); // Span for dynamic weather icon
 
-const hourlyForecastSection = document.getElementById('hourlyForecast'); // NEW
-const dailyForecastSection = document.getElementById('dailyForecast'); // NEW
-const detailCardsContainer = document.getElementById('detailCards'); // NEW
+const hourlyForecastSection = document.getElementById('hourlyForecast');
+const dailyForecastSection = document.getElementById('dailyForecast');
+const detailCardsContainer = document.getElementById('detailCards');
 
-const uvIndexElement = document.getElementById('uvIndex'); // NEW
-const uvDescriptionElement = document.getElementById('uvDescription'); // NEW
-const detailHumidityElement = document.getElementById('detailHumidity'); // NEW
-const feelsLikeElement = document.getElementById('feelsLike'); // NEW
-const detailWindSpeedElement = document.getElementById('detailWindSpeed'); // NEW
-const detailWindDirectionElement = document.getElementById('detailWindDirection'); // NEW
-const sunriseValueElement = document.getElementById('sunriseValue'); // NEW
-const sunsetValueElement = document.getElementById('sunsetValue'); // NEW
-const pressureElement = document.getElementById('pressure'); // NEW
-const aqiValueElement = document.getElementById('aqiValue'); // NEW
-const aqiDescriptionElement = document.getElementById('aqiDescription'); // NEW
+const uvIndexElement = document.getElementById('uvIndex');
+const uvDescriptionElement = document.getElementById('uvDescription');
+const detailHumidityElement = document.getElementById('detailHumidity');
+const feelsLikeElement = document.getElementById('feelsLike');
+const detailWindSpeedElement = document.getElementById('detailWindSpeed');
+const detailWindDirectionElement = document.getElementById('detailWindDirection');
+const sunriseValueElement = document.getElementById('sunriseValue');
+const sunsetValueElement = document.getElementById('sunsetValue');
+const pressureElement = document.getElementById('pressure');
+const aqiValueElement = document.getElementById('aqiValue');
+const aqiDescriptionElement = document.getElementById('aqiDescription');
 
 
 const tempChartCanvas = document.getElementById('tempChart');
 const humidityChartCanvas = document.getElementById('humidityChart'); 
 const adviceList = document.getElementById('adviceList');
-const adviceBox = document.getElementById('adviceBox'); // Get the advice box element
+const adviceBox = document.getElementById('adviceBox');
 
 let tempChart; // To store the Chart.js instance for temperature
 let humidityChart; // To store the Chart.js instance for humidity
 
 // --- Event Listeners ---
-searchBtn.addEventListener('click', getWeather);
+// Desktop
+searchBtn.addEventListener('click', () => getWeather(cityInput.value));
 cityInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
-        getWeather();
+        getWeather(cityInput.value);
     }
 });
 locationBtn.addEventListener('click', getLocationWeather);
 darkModeToggle.addEventListener('click', toggleDarkMode);
+
+// Mobile
+hamburgerBtn.addEventListener('click', () => {
+    mobileMenu.classList.add('active');
+    document.body.classList.add('no-scroll');
+});
+
+closeMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.remove('active');
+    document.body.classList.remove('no-scroll');
+});
+
+searchBtnMobile.addEventListener('click', () => {
+    getWeather(cityInputMobile.value);
+    mobileMenu.classList.remove('active'); // Close menu after search
+    document.body.classList.remove('no-scroll');
+});
+
+cityInputMobile.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        getWeather(cityInputMobile.value);
+        mobileMenu.classList.remove('active'); // Close menu after search
+        document.body.classList.remove('no-scroll');
+    }
+});
+
+locationBtnMobile.addEventListener('click', () => {
+    getLocationWeather();
+    mobileMenu.classList.remove('active'); // Close menu after getting location
+    document.body.classList.remove('no-scroll');
+});
+
+darkModeToggleMobile.addEventListener('click', toggleDarkMode);
+
 
 // --- Functions ---
 
@@ -91,11 +137,11 @@ async function fetchWeather(query, lat, lon) {
 
 /**
  * Gets city name from input and calls fetchWeather.
+ * @param {string} city - The city name from the input field.
  */
-function getWeather() {
-    const city = cityInput.value.trim();
-    if (city) {
-        fetchWeather(city);
+function getWeather(city) {
+    if (city.trim()) {
+        fetchWeather(city.trim());
     } else {
         displayMessage('Vui lòng nhập tên thành phố.');
     }
@@ -160,9 +206,9 @@ function renderWeather(data) {
     weatherInfo.classList.remove('opacity-0', 'scale-95');
     weatherInfo.classList.add('opacity-100', 'scale-100');
 
-    renderHourlyForecast(data.list); // NEW
-    renderDailyForecast(data.list); // NEW
-    renderDetailedCards(current, city); // NEW
+    renderHourlyForecast(data.list);
+    renderDailyForecast(data.list);
+    renderDetailedCards(current, city);
     renderChart(data.list); // Temperature chart
     renderHumidityChart(data.list); // Humidity chart
     renderAdvice(current.main.temp, current.weather[0].main);
@@ -671,12 +717,14 @@ function toggleDarkMode() {
     // Save user preference to localStorage
     if (document.body.classList.contains('dark')) {
         localStorage.setItem('darkMode', 'enabled');
-        // Change icon to sun
+        // Change icon to sun for both desktop and mobile toggles
         darkModeIcon.innerHTML = `<path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.06l1.59-1.591zM12 18a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V18a.75.75 0 01.75-.75zM5.166 7.5a.75.75 0 00-1.06-1.06l-1.59 1.59a.75.75 0 101.06 1.06l1.59-1.59zM18.894 17.834a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.06 1.06l1.59 1.591zM3.25 12a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75.75zM14.25 5.166a.75.75 0 001.06-1.06l-1.591-1.59a.75.75 0 10-1.06 1.06l1.59 1.591zM21.75 12a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75.75zM5.166 14.25a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.06l-1.59-1.591z" clip-rule="evenodd" />`;
+        darkModeIconMobile.innerHTML = `<path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.06l1.59-1.591zM12 18a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V18a.75.75 0 01.75-.75zM5.166 7.5a.75.75 0 00-1.06-1.06l-1.59 1.59a.75.75 0 101.06 1.06l1.59-1.59zM18.894 17.834a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.06 1.06l1.59 1.591zM3.25 12a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75.75zM14.25 5.166a.75.75 0 001.06-1.06l-1.591-1.59a.75.75 0 10-1.06 1.06l1.59 1.591zM21.75 12a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75.75zM5.166 14.25a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.06l-1.59-1.591z" clip-rule="evenodd" />`;
     } else {
         localStorage.setItem('darkMode', 'disabled');
-        // Change icon to moon
+        // Change icon to moon for both desktop and mobile toggles
         darkModeIcon.innerHTML = `<path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.173.64l-.397 2.013a4.412 4.412 0 002.572 2.572l2.014-.396a.75.75 0 01.64.172 7.501 7.501 0 01-9.485 9.485A.75.75 0 011.718 14.472a7.501 7.501 0 017.81-12.754z" clip-rule="evenodd" />`;
+        darkModeIconMobile.innerHTML = `<path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.173.64l-.397 2.013a4.412 4.412 0 002.572 2.572l2.014-.396a.75.75 0 01.64.172 7.501 7.501 0 01-9.485 9.485A.75.75 0 011.718 14.472a7.501 7.501 0 017.81-12.754z" clip-rule="evenodd" />`;
     }
 }
 
@@ -723,8 +771,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('darkMode') === 'enabled') {
         document.body.classList.add('dark');
         darkModeIcon.innerHTML = `<path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.06l1.59-1.591zM12 18a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V18a.75.75 0 01.75-.75zM5.166 7.5a.75.75 0 00-1.06-1.06l-1.59 1.59a.75.75 0 101.06 1.06l1.59-1.59zM18.894 17.834a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.06 1.06l1.59 1.591zM3.25 12a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75.75zM14.25 5.166a.75.75 0 001.06-1.06l-1.591-1.59a.75.75 0 10-1.06 1.06l1.59 1.591zM21.75 12a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75.75zM5.166 14.25a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.06l-1.59-1.591z" clip-rule="evenodd" />`;
+        darkModeIconMobile.innerHTML = `<path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.06l1.59-1.591zM12 18a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V18a.75.75 0 01.75-.75zM5.166 7.5a.75.75 0 00-1.06-1.06l-1.59 1.59a.75.75 0 101.06 1.06l1.59-1.59zM18.894 17.834a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.06 1.06l1.59 1.591zM3.25 12a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75.75zM14.25 5.166a.75.75 0 001.06-1.06l-1.591-1.59a.75.75 0 10-1.06 1.06l1.59 1.591zM21.75 12a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75.75zM5.166 14.25a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.06l-1.59-1.591z" clip-rule="evenodd" />`;
     } else {
         darkModeIcon.innerHTML = `<path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.173.64l-.397 2.013a4.412 4.412 0 002.572 2.572l2.014-.396a.75.75 0 01.64.172 7.501 7.501 0 01-9.485 9.485A.75.75 0 011.718 14.472a7.501 7.501 0 017.81-12.754z" clip-rule="evenodd" />`;
+        darkModeIconMobile.innerHTML = `<path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.173.64l-.397 2.013a4.412 4.412 0 002.572 2.572l2.014-.396a.75.75 0 01.64.172 7.501 7.501 0 01-9.485 9.485A.75.75 0 011.718 14.472a7.501 7.501 0 017.81-12.754z" clip-rule="evenodd" />`;
     }
 
     // Fetch weather for a default city (e.g., Ho Chi Minh) on page load

@@ -15,6 +15,11 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
+/* Class to prevent scrolling when mobile menu is open */
+body.no-scroll {
+    overflow: hidden;
+}
+
 /* Custom Shadows and Rounded Corners */
 .shadow-md {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Softer, more diffused shadow for buttons */
@@ -69,6 +74,7 @@ header h1 {
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* Softer text shadow for header */
 }
 
+/* Desktop Search Box and Buttons */
 .search-box {
     display: flex;
     gap: 1rem; /* Adjusted gap */
@@ -138,6 +144,49 @@ header h1 {
     z-index: 1;
 }
 
+/* Mobile Menu Container */
+.mobile-menu-container {
+    background: rgba(0, 0, 0, 0.95); /* Darker overlay for mobile menu */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
+    transform: translateX(100%); /* Hidden by default */
+    transition: transform 0.5s ease-in-out;
+}
+
+.mobile-menu-container.active {
+    transform: translateX(0); /* Slide in */
+}
+
+.mobile-menu-container #closeMenuBtn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: white;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.mobile-menu-container #closeMenuBtn svg {
+    width: 2rem;
+    height: 2rem;
+}
+
+.mobile-menu-container input,
+.mobile-menu-container button {
+    width: 100%;
+    max-width: 300px; /* Limit width for better mobile appearance */
+    margin-bottom: 1rem; /* Spacing between elements */
+}
+
+
 /* Main Content Sections - Refined Glassmorphism */
 section {
     background: rgba(255, 255, 255, 0.15); /* Lighter opacity for sections */
@@ -195,8 +244,8 @@ section {
     -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
     display: flex; /* Ensure flexbox for horizontal layout */
     gap: 1rem; /* Space between hourly items */
-    /* Ensure items fill the container if fewer than 8 */
     justify-content: space-around; /* Distribute space evenly */
+    flex-wrap: nowrap; /* Prevent wrapping for horizontal scroll */
 }
 
 .hourly-scroll-container::-webkit-scrollbar {
@@ -529,24 +578,9 @@ body.dark .search-box button:hover {
         font-size: 2.5rem;
     }
 
+    /* Hide desktop search box on smaller screens */
     .search-box {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.7rem;
-    }
-
-    .search-box input {
-        width: 100%;
-    }
-
-    .search-box button {
-        flex-grow: 1;
-        max-width: calc(33% - 0.5rem);
-        padding: 0.8rem 1rem;
-    }
-    .search-box button svg {
-        width: 1.1rem;
-        height: 1.1rem;
+        display: none;
     }
 
     main {
@@ -572,11 +606,7 @@ body.dark .search-box button:hover {
     .hourly-item {
         min-width: 80px;
         padding: 0.7rem;
-        margin-right: 0.8rem;
     }
-    .hourly-item p:first-child { font-size: 0.9rem; }
-    .hourly-item p:last-child { font-size: 1.5rem; }
-
     .daily-forecast-item {
         padding: 0.7rem 1rem;
         font-size: 0.95rem;
@@ -613,23 +643,17 @@ body.dark .search-box button:hover {
     header h1 {
         font-size: 2rem;
         text-align: center;
-        margin-bottom: 0.7rem;
+        margin-bottom: 0; /* Remove margin as hamburger is present */
     }
 
+    /* Show hamburger button on mobile */
+    #hamburgerBtn {
+        display: block;
+    }
+
+    /* Hide desktop search box on mobile */
     .search-box {
-        flex-direction: column;
-        width: 100%;
-        gap: 0.5rem;
-    }
-
-    .search-box input,
-    .search-box button {
-        width: 100%;
-        padding: 0.7rem;
-    }
-    .search-box button svg {
-        width: 1rem;
-        height: 1rem;
+        display: none;
     }
 
     main {
@@ -656,7 +680,6 @@ body.dark .search-box button:hover {
     .hourly-item {
         min-width: 70px;
         padding: 0.6rem;
-        margin-right: 0.7rem;
     }
     .hourly-item p:first-child { font-size: 0.8rem; }
     .hourly-item p:last-child { font-size: 1.2rem; }
@@ -697,16 +720,6 @@ body.dark .search-box button:hover {
         font-size: 1.5rem;
     }
 
-    .search-box input,
-    .search-box button {
-        padding: 0.5rem;
-        font-size: 0.75rem;
-    }
-    .search-box button svg {
-        width: 0.9rem;
-        height: 0.9rem;
-    }
-
     main {
         padding: 0.5rem;
         margin-top: 6rem;
@@ -731,7 +744,6 @@ body.dark .search-box button:hover {
     .hourly-item {
         min-width: 60px;
         padding: 0.5rem;
-        margin-right: 0.6rem;
     }
     .hourly-item p:first-child { font-size: 0.7rem; }
     .hourly-item p:last-child { font-size: 1rem; }
