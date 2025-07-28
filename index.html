@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Weather Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js CDN for drawing temperature and humidity charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tailwind CSS CDN for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font for a clean look */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-cover bg-center min-h-screen flex flex-col transition-colors duration-1000 ease-in-out">
+    <!-- Header Section -->
+    <header class="fixed top-0 left-0 w-full bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl p-4 shadow-md z-10 rounded-b-3xl transform transition-all duration-700 ease-in-out">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <h1 class="text-4xl font-extrabold text-white text-shadow-xs tracking-wide animate-fade-in-down">Smart Weather Assistant</h1>
+            <div class="search-box flex items-center space-x-3 w-full md:w-auto">
+                <input type="text" id="cityInput" placeholder="Nhập tên thành phố..." class="p-3 rounded-xl bg-white bg-opacity-25 text-white placeholder-white focus:outline-none focus:ring-3 focus:ring-blue-400 focus:ring-opacity-75 flex-grow text-lg shadow-inner-sm transition-all duration-300">
+                <button id="searchBtn" class="p-3 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group">
+                    <!-- Search Icon SVG -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 transition-transform duration-300 group-hover:rotate-6">
+                        <path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <button id="locationBtn" class="p-3 bg-gradient-to-br from-green-500 to-teal-600 text-white rounded-xl hover:from-green-600 hover:to-teal-700 transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group">
+                    <!-- Location Icon SVG -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 transition-transform duration-300 group-hover:-rotate-6">
+                        <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.04c1.62-.951 3.536-2.004 5.168-3.073A3.75 3.75 0 0022.5 15.75V9.456c0-1.133-.658-2.278-1.606-3.053L15.37 1.628a1.875 1.875 0 00-2.694 0l-5.36 4.775A4.5 4.5 0 004.5 9.456v6.294c0 1.133.658 2.277 1.606 3.052l5.36 4.776zM12 15.75a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <button id="darkModeToggle" class="p-3 bg-gradient-to-br from-gray-700 to-gray-900 text-white rounded-xl hover:from-gray-800 hover:to-black transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group">
+                    <!-- Dark/Light Mode Icon SVG (Moon/Sun) -->
+                    <svg id="darkModeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 transition-transform duration-300 group-hover:scale-110">
+                        <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.173.64l-.397 2.013a4.412 4.412 0 002.572 2.572l2.014-.396a.75.75 0 01.64.172 7.501 7.501 0 01-9.485 9.485A.75.75 0 011.718 14.472a7.501 7.501 0 017.81-12.754z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Section -->
+    <main class="container mx-auto p-6 mt-32 flex-grow flex flex-col items-center justify-center">
+        <!-- Current Weather Card -->
+        <section id="weatherInfo" class="weather-card bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-8 rounded-4xl shadow-lg text-white text-center w-full max-w-2xl mb-12 transform transition-all duration-1000 scale-95 opacity-0 border border-white border-opacity-20 relative overflow-hidden animate-fade-in-up">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 opacity-10 blur-xl z-0 rounded-4xl animate-subtle-pulse"></div>
+            <div class="relative z-10">
+                <h2 class="text-5xl font-extrabold mb-3 text-shadow-xs animate-fade-in" id="currentCity"></h2>
+                <p class="text-2xl mb-5 flex items-center justify-center gap-2 font-medium animate-fade-in-delay" id="currentDescription">
+                    <span id="weatherIcon" class="text-4xl"></span> <!-- Dynamic Weather Icon -->
+                    <span></span>
+                </p>
+                <p class="text-7xl font-extrabold mb-6 text-shadow-sm animate-fade-in-temp" id="currentTemp"></p>
+                <div class="flex flex-col sm:flex-row justify-around text-xl font-semibold gap-4 animate-fade-in-delay-2">
+                    <p class="bg-white bg-opacity-10 rounded-xl px-4 py-2 shadow-sm">Độ ẩm: <span id="currentHumidity"></span></p>
+                    <p class="bg-white bg-opacity-10 rounded-xl px-4 py-2 shadow-sm">Gió: <span id="currentWind"></span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hourly Forecast Section (Dự báo 24 giờ) -->
+        <section id="hourlyForecast" class="bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-6 rounded-4xl shadow-lg text-white w-full max-w-6xl mb-12 animate-fade-in-up-delay-2">
+            <h3 class="w-full text-3xl font-bold mb-6 text-center text-shadow-xs">Dự báo 24 giờ</h3>
+            <div class="hourly-scroll-container overflow-x-auto whitespace-nowrap py-2 px-1">
+                <!-- Hourly forecast items will be injected here by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Daily Forecast Section (Dự báo 5 ngày) -->
+        <section id="dailyForecast" class="bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-6 rounded-4xl shadow-lg text-white w-full max-w-6xl mb-12 animate-fade-in-up-delay">
+            <h3 class="w-full text-3xl font-bold mb-6 text-center text-shadow-xs">Dự báo 5 ngày</h3>
+            <!-- Daily forecast items will be injected here by JavaScript -->
+        </section>
+
+        <!-- Detailed Weather Cards Grid -->
+        <div id="detailCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-6xl mb-12 animate-fade-in-up-delay-3">
+            <!-- UV Index Card -->
+            <section class="detail-card">
+                <h4 class="text-xl font-semibold mb-2">UV</h4>
+                <p class="text-4xl font-bold" id="uvIndex">N/A</p>
+                <p class="text-lg" id="uvDescription"></p>
+            </section>
+
+            <!-- Humidity Card -->
+            <section class="detail-card">
+                <h4 class="text-xl font-semibold mb-2">Độ ẩm</h4>
+                <p class="text-4xl font-bold" id="detailHumidity">N/A</p>
+            </section>
+
+            <!-- Feels Like Card -->
+            <section class="detail-card">
+                <h4 class="text-xl font-semibold mb-2">Cảm giác như</h4>
+                <p class="text-4xl font-bold" id="feelsLike">N/A</p>
+            </section>
+
+            <!-- Wind Card -->
+            <section class="detail-card">
+                <h4 class="text-xl font-semibold mb-2">Gió</h4>
+                <p class="text-4xl font-bold" id="detailWindSpeed">N/A</p>
+                <p class="text-lg" id="detailWindDirection"></p>
+            </section>
+
+            <!-- Sunrise Card -->
+            <section class="detail-card">
+                <h4 class="text-xl font-semibold mb-2">Bình minh</h4>
+                <p class="text-4xl font-bold" id="sunriseValue">N/A</p>
+            </section>
+
+            <!-- Sunset Card -->
+            <section class="detail-card">
+                <h4 class="text-xl font-semibold mb-2">Hoàng hôn</h4>
+                <p class="text-4xl font-bold" id="sunsetValue">N/A</p>
+            </section>
+
+            <!-- Pressure Card -->
+            <section class="detail-card">
+                <h4 class="text-xl font-semibold mb-2">Áp suất</h4>
+                <p class="text-4xl font-bold" id="pressure">N/A</p>
+            </section>
+
+            <!-- AQI Card -->
+            <section class="detail-card">
+                <h4 class="text-xl font-semibold mb-2">AQI</h4>
+                <p class="text-4xl font-bold" id="aqiValue">N/A</p>
+                <p class="text-lg" id="aqiDescription"></p>
+            </section>
+        </div>
+
+        <!-- Temperature Chart Section -->
+        <section class="bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-7 rounded-4xl shadow-lg w-full max-w-6xl mb-12 transform transition-all duration-1000 scale-95 opacity-0 border border-white border-opacity-20">
+            <h3 class="w-full text-3xl font-bold mb-6 text-center text-white text-shadow-xs">Biểu đồ nhiệt độ</h3>
+            <canvas id="tempChart" class="max-h-96"></canvas>
+        </section>
+
+        <!-- Humidity Chart Section -->
+        <section class="bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-7 rounded-4xl shadow-lg w-full max-w-6xl mb-12 transform transition-all duration-1000 scale-95 opacity-0 border border-white border-opacity-20">
+            <h3 class="w-full text-3xl font-bold mb-6 text-center text-white text-shadow-xs">Biểu đồ độ ẩm</h3>
+            <canvas id="humidityChart" class="max-h-96"></canvas>
+        </section>
+
+        <!-- Advice Box Section -->
+        <section class="advice bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-8 rounded-4xl shadow-lg w-full max-w-2xl transform transition-all duration-1000 scale-95 opacity-0 border border-white border-opacity-20 animate-fade-in-up-delay-3" id="adviceBox">
+            <h3 class="text-3xl font-bold mb-6 text-white text-shadow-xs">🛍️ Gợi ý đồ dùng:</h3>
+            <ul id="adviceList" class="text-white text-xl list-disc list-inside space-y-3">
+                <!-- Advice items will be injected here by JavaScript -->
+            </ul>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="w-full bg-gray-900 bg-opacity-60 p-5 text-center text-white text-md rounded-t-4xl mt-auto shadow-inner-sm">
+        <p>© 2025 Smart Weather | GitHub Pages</p>
+    </footer>
+
+    <!-- JavaScript file -->
+    <script src="app.js"></script>
+</body>
+</html>
