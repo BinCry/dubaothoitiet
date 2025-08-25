@@ -1,204 +1,481 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Weather Assistant</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Chart.js CDN for drawing temperature and humidity charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Tailwind CSS CDN for utility classes -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Custom font for a clean look */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Weather Assistant • Minh Quân</title>
+  <!-- Chart.js (cho biểu đồ) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- File CSS của bạn -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Meta -->
+  <meta name="description" content="Ứng dụng thời tiết thông minh: tra cứu nhanh theo vị trí hiện tại hoặc thành phố, dự báo 24h/7 ngày, tin tức thời tiết 3 miền, thiên văn (pha trăng, hoàng đạo), gợi ý trang phục, tùy chỉnh đơn vị & theme. © Minh Quân" />
 </head>
-<body class="bg-cover bg-center min-h-screen flex flex-col transition-colors duration-1000 ease-in-out">
-    <!-- Header Section -->
-    <header class="fixed top-0 left-0 w-full bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl p-4 shadow-md z-10 rounded-b-3xl transform transition-all duration-700 ease-in-out">
-        <div class="container mx-auto flex items-center justify-between gap-4">
-            <h1 class="text-4xl font-extrabold text-white text-shadow-xs tracking-wide animate-fade-in-down">Smart Weather Assistant</h1>
-            
-            <!-- Hamburger Menu Button (Mobile Only) -->
-            <button id="hamburgerBtn" class="p-2 text-white rounded-lg md:hidden focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-            </button>
 
-            <!-- Search Box and Buttons (Desktop View) -->
-            <div class="search-box hidden md:flex items-center space-x-3 w-full md:w-auto">
-                <input type="text" id="cityInput" placeholder="Nhập tên thành phố..." class="p-3 rounded-xl bg-white bg-opacity-25 text-white placeholder-white focus:outline-none focus:ring-3 focus:ring-blue-400 focus:ring-opacity-75 flex-grow text-lg shadow-inner-sm transition-all duration-300">
-                <button id="searchBtn" class="p-3 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group">
-                    <!-- Search Icon SVG -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 transition-transform duration-300 group-hover:rotate-6">
-                        <path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <button id="locationBtn" class="p-3 bg-gradient-to-br from-green-500 to-teal-600 text-white rounded-xl hover:from-green-600 hover:to-teal-700 transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group">
-                    <!-- Location Icon SVG -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 transition-transform duration-300 group-hover:-rotate-6">
-                        <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.04c1.62-.951 3.536-2.004 5.168-3.073A3.75 3.75 0 0022.5 15.75V9.456c0-1.133-.658-2.278-1.606-3.053L15.37 1.628a1.875 1.875 0 00-2.694 0l-5.36 4.775A4.5 4.5 0 004.5 9.456v6.294c0 1.133.658 2.277 1.606 3.052l5.36 4.776zM12 15.75a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <button id="darkModeToggle" class="p-3 bg-gradient-to-br from-gray-700 to-gray-900 text-white rounded-xl hover:from-gray-800 hover:to-black transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group">
-                    <!-- Dark/Light Mode Icon SVG (Moon/Sun) -->
-                    <svg id="darkModeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 transition-transform duration-300 group-hover:scale-110">
-                        <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.173.64l-.397 2.013a4.412 4.412 0 002.572 2.572l2.014-.396a.75.75 0 01.64.172 7.501 7.501 0 01-9.485 9.485A.75.75 0 011.718 14.472a7.501 7.501 0 017.81-12.754z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div>
+<body class="theme-blue" data-theme="blue">
+  <!-- ======================= HEADER ======================= -->
+  <header class="app-header" role="banner">
+    <div class="container header-inner">
+      <!-- Brand -->
+      <div class="brand">
+        <button id="mobileMenuToggle" class="btn icon md:hidden" aria-label="Mở menu">
+          <!-- hamburger -->
+          <span class="i i-hamburger" aria-hidden="true"></span>
+        </button>
+        <h1 class="logo" aria-label="Smart Weather Assistant">🌤️ Smart Weather Assistant</h1>
+      </div>
+
+      <!-- Search + Location (desktop & tablet) -->
+      <div class="searchbar" role="search" aria-label="Tra cứu thời tiết">
+        <input
+          id="cityInput"
+          type="text"
+          inputmode="search"
+          placeholder="Nhập tên thành phố (VD: Hà Nội, Đà Nẵng, TP.HCM)"
+          autocomplete="off"
+          aria-label="Ô nhập thành phố"
+        />
+        <button id="searchBtn" class="btn primary" aria-label="Tìm kiếm thành phố">
+          Tìm kiếm
+        </button>
+        <button id="locationBtn" class="btn ghost" aria-label="Lấy vị trí hiện tại">
+          📍 Vị trí hiện tại
+        </button>
+      </div>
+
+      <!-- Tab Navigation -->
+      <nav class="tabs-nav" aria-label="Chuyển tab">
+        <button class="tab-btn is-active" data-tab="current" aria-controls="tab-current" aria-selected="true">Hiện tại</button>
+        <button class="tab-btn" data-tab="forecast" aria-controls="tab-forecast">Dự báo</button>
+        <button class="tab-btn" data-tab="news" aria-controls="tab-news">Tin tức</button>
+        <button class="tab-btn" data-tab="astronomy" aria-controls="tab-astronomy">Thiên văn</button>
+        <button class="tab-btn" data-tab="outfit" aria-controls="tab-outfit">Trang phục</button>
+        <button class="tab-btn" data-tab="settings" aria-controls="tab-settings">Cài đặt</button>
+      </nav>
+    </div>
+
+    <!-- Mobile quick actions -->
+    <div class="mobile-quick md:hidden">
+      <div class="mobile-row">
+        <input id="cityInputMobile" type="text" placeholder="Nhập tên thành phố..." aria-label="Ô nhập thành phố (mobile)" />
+        <button id="searchBtnMobile" class="btn primary">Tìm</button>
+        <button id="locationBtnMobile" class="btn ghost">📍</button>
+      </div>
+      <div class="mobile-row chips" id="quickFavorites" aria-label="Yêu thích">
+        <!-- JS sẽ render city chips -->
+      </div>
+    </div>
+
+    <!-- Alert banner (nóng bức / mưa lớn / giông bão) -->
+    <div id="alertBanner" class="alert-banner hidden" role="status" aria-live="polite">
+      <!-- JS chèn nội dung cảnh báo đặc biệt -->
+    </div>
+  </header>
+
+  <!-- ======================= SIDE DRAWER (Mobile Nav) ======================= -->
+  <aside id="mobileDrawer" class="drawer" aria-hidden="true" aria-label="Menu di động">
+    <div class="drawer-header">
+      <h2>Menu</h2>
+      <button id="drawerClose" class="btn icon" aria-label="Đóng menu">
+        <span class="i i-close"></span>
+      </button>
+    </div>
+
+    <div class="drawer-search" role="search">
+      <input id="drawerCityInput" type="text" placeholder="Nhập tên thành phố..." aria-label="Ô nhập thành phố trong menu" />
+      <div class="row">
+        <button id="drawerSearchBtn" class="btn primary">Tìm kiếm</button>
+        <button id="drawerLocationBtn" class="btn ghost">📍 Vị trí</button>
+      </div>
+    </div>
+
+    <nav class="drawer-tabs">
+      <button class="drawer-tab" data-tab="current">Hiện tại</button>
+      <button class="drawer-tab" data-tab="forecast">Dự báo</button>
+      <button class="drawer-tab" data-tab="news">Tin tức</button>
+      <button class="drawer-tab" data-tab="astronomy">Thiên văn</button>
+      <button class="drawer-tab" data-tab="outfit">Trang phục</button>
+      <button class="drawer-tab" data-tab="settings">Cài đặt</button>
+    </nav>
+
+    <div class="drawer-favorites">
+      <h3>Yêu thích</h3>
+      <div id="drawerFavorites" class="chips"></div>
+    </div>
+  </aside>
+
+  <!-- ======================= MAIN ======================= -->
+  <main class="container app-main">
+    <!-- ======= TAB: HIỆN TẠI ======= -->
+    <section id="tab-current" class="tab-panel is-active" role="tabpanel" aria-labelledby="current">
+      <!-- City header + time + summary -->
+      <div class="hero">
+        <div class="hero-primary">
+          <h2 id="currentCity" class="hero-city">--</h2>
+          <div class="hero-sub">
+            <span id="currentDateTime">--</span>
+            <span class="dot">•</span>
+            <span id="currentDescription">--</span>
+          </div>
         </div>
-
-        <!-- Mobile Menu Container (Hidden by default) -->
-        <div id="mobileMenu" class="mobile-menu-container fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-95 backdrop-filter backdrop-blur-lg z-50 transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col items-center justify-center p-6 md:hidden">
-            <button id="closeMenuBtn" class="absolute top-6 right-6 p-2 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-            <div class="flex flex-col items-center space-y-6 w-full max-w-sm">
-                <input type="text" id="cityInputMobile" placeholder="Nhập tên thành phố..." class="p-4 rounded-xl bg-white bg-opacity-25 text-white placeholder-white focus:outline-none focus:ring-3 focus:ring-blue-400 focus:ring-opacity-75 w-full text-xl shadow-inner-sm transition-all duration-300">
-                <button id="searchBtnMobile" class="p-4 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group w-full text-xl font-semibold">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 mr-2">
-                        <path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z" clip-rule="evenodd" />
-                    </svg>
-                    Tìm kiếm
-                </button>
-                <button id="locationBtnMobile" class="p-4 bg-gradient-to-br from-green-500 to-teal-600 text-white rounded-xl hover:from-green-600 hover:to-teal-700 transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group w-full text-xl font-semibold">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 mr-2">
-                        <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.04c1.62-.951 3.536-2.004 5.168-3.073A3.75 3.75 0 0022.5 15.75V9.456c0-1.133-.658-2.278-1.606-3.053L15.37 1.628a1.875 1.875 0 00-2.694 0l-5.36 4.775A4.5 4.5 0 004.5 9.456v6.294c0 1.133.658 2.277 1.606 3.052l5.36 4.776zM12 15.75a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                    </svg>
-                    Vị trí hiện tại
-                </button>
-                <button id="darkModeToggleMobile" class="p-4 bg-gradient-to-br from-gray-700 to-gray-900 text-white rounded-xl hover:from-gray-800 hover:to-black transition-all duration-400 shadow-md transform hover:scale-105 flex items-center justify-center relative overflow-hidden group w-full text-xl font-semibold">
-                    <svg id="darkModeIconMobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 mr-2">
-                        <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.173.64l-.397 2.013a4.412 4.412 0 002.572 2.572l2.014-.396a.75.75 0 01.64.172 7.501 7.501 0 01-9.485 9.485A.75.75 0 011.718 14.472a7.501 7.501 0 017.81-12.754z" clip-rule="evenodd" />
-                    </svg>
-                    Chế độ tối
-                </button>
-            </div>
+        <div class="hero-actions">
+          <button id="saveCityBtn" class="btn ghost">+ Yêu thích</button>
+          <button id="refreshBtn" class="btn ghost">↻ Làm mới</button>
+          <button id="darkModeToggle" class="btn ghost" aria-pressed="false">🌓 Theme</button>
         </div>
-    </header>
+      </div>
 
-    <!-- Main Content Section -->
-    <main class="container mx-auto p-6 mt-32 flex-grow flex flex-col items-center justify-center">
-        <!-- Current Weather Card -->
-        <section id="weatherInfo" class="weather-card bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-8 rounded-4xl shadow-lg text-white text-center w-full max-w-2xl mb-12 transform transition-all duration-1000 scale-95 opacity-0 border border-white border-opacity-20 relative overflow-hidden animate-fade-in-up">
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 opacity-10 blur-xl z-0 rounded-4xl animate-subtle-pulse"></div>
-            <div class="relative z-10">
-                <h2 class="text-5xl font-extrabold mb-3 text-shadow-xs animate-fade-in" id="currentCity"></h2>
-                <p class="text-2xl mb-5 flex items-center justify-center gap-2 font-medium animate-fade-in-delay" id="currentDescription">
-                    <span id="weatherIcon" class="text-4xl"></span> <!-- Dynamic Weather Icon -->
-                    <span></span>
-                </p>
-                <p class="text-7xl font-extrabold mb-6 text-shadow-sm animate-fade-in-temp" id="currentTemp"></p>
-                <div class="flex flex-col sm:flex-row justify-around text-xl font-semibold gap-4 animate-fade-in-delay-2">
-                    <p class="bg-white bg-opacity-10 rounded-xl px-4 py-2 shadow-sm">Độ ẩm: <span id="currentHumidity"></span></p>
-                    <p class="bg-white bg-opacity-10 rounded-xl px-4 py-2 shadow-sm">Gió: <span id="currentWind"></span></p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Hourly Forecast Section (Dự báo 24 giờ) -->
-        <section id="hourlyForecast" class="bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-6 rounded-4xl shadow-lg text-white w-full max-w-6xl mb-12 animate-fade-in-up-delay-2">
-            <h3 class="w-full text-3xl font-bold mb-6 text-center text-shadow-xs">Dự báo 24 giờ</h3>
-            <div class="hourly-scroll-container overflow-x-auto whitespace-nowrap py-2 px-1">
-                <!-- Hourly forecast items will be injected here by JavaScript -->
-            </div>
-        </section>
-
-        <!-- Daily Forecast Section (Dự báo 5 ngày) -->
-        <section id="dailyForecast" class="bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-6 rounded-4xl shadow-lg text-white w-full max-w-6xl mb-12 animate-fade-in-up-delay">
-            <h3 class="w-full text-3xl font-bold mb-6 text-center text-shadow-xs">Dự báo 5 ngày</h3>
-            <!-- Daily forecast items will be injected here by JavaScript -->
-        </section>
-
-        <!-- Detailed Weather Cards Grid -->
-        <div id="detailCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-6xl mb-12 animate-fade-in-up-delay-3">
-            <!-- UV Index Card -->
-            <section class="detail-card">
-                <h4 class="text-xl font-semibold mb-2">UV</h4>
-                <p class="text-4xl font-bold" id="uvIndex">N/A</p>
-                <p class="text-lg" id="uvDescription"></p>
-            </section>
-
-            <!-- Humidity Card -->
-            <section class="detail-card">
-                <h4 class="text-xl font-semibold mb-2">Độ ẩm</h4>
-                <p class="text-4xl font-bold" id="detailHumidity">N/A</p>
-            </section>
-
-            <!-- Feels Like Card -->
-            <section class="detail-card">
-                <h4 class="text-xl font-semibold mb-2">Cảm giác như</h4>
-                <p class="text-4xl font-bold" id="feelsLike">N/A</p>
-            </section>
-
-            <!-- Wind Card -->
-            <section class="detail-card">
-                <h4 class="text-xl font-semibold mb-2">Gió</h4>
-                <p class="text-4xl font-bold" id="detailWindSpeed">N/A</p>
-                <p class="text-lg" id="detailWindDirection"></p>
-            </section>
-
-            <!-- Sunrise Card -->
-            <section class="detail-card">
-                <h4 class="text-xl font-semibold mb-2">Bình minh</h4>
-                <p class="text-4xl font-bold" id="sunriseValue">N/A</p>
-            </section>
-
-            <!-- Sunset Card -->
-            <section class="detail-card">
-                <h4 class="text-xl font-semibold mb-2">Hoàng hôn</h4>
-                <p class="text-4xl font-bold" id="sunsetValue">N/A</p>
-            </section>
-
-            <!-- Pressure Card -->
-            <section class="detail-card">
-                <h4 class="text-xl font-semibold mb-2">Áp suất</h4>
-                <p class="text-4xl font-bold" id="pressure">N/A</p>
-            </section>
-
-            <!-- AQI Card -->
-            <section class="detail-card">
-                <h4 class="text-xl font-semibold mb-2">AQI</h4>
-                <p class="text-4xl font-bold" id="aqiValue">N/A</p>
-                <p class="text-lg" id="aqiDescription"></p>
-            </section>
+      <!-- Top metrics -->
+      <div class="grid metrics">
+        <div class="metric-card">
+          <div class="metric-title">Nhiệt độ</div>
+          <div class="metric-value"><span id="currentTemp">--</span></div>
+          <div class="metric-desc">Cảm giác như <strong id="feelsLike">--</strong></div>
         </div>
+        <div class="metric-card">
+          <div class="metric-title">Độ ẩm</div>
+          <div class="metric-value"><span id="currentHumidity">--</span></div>
+          <div class="metric-desc">Tầm nhìn <strong id="visibility">--</strong></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Gió</div>
+          <div class="metric-value"><span id="currentWind">--</span></div>
+          <div class="metric-desc">Sức gió <strong id="windGust">--</strong></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Áp suất</div>
+          <div class="metric-value"><span id="pressure">--</span></div>
+          <div class="metric-desc">Mực nước biển <strong id="seaLevel">--</strong></div>
+        </div>
+      </div>
 
-        <!-- Temperature Chart Section -->
-        <section class="bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-7 rounded-4xl shadow-lg w-full max-w-6xl mb-12 transform transition-all duration-1000 scale-95 opacity-0 border border-white border-opacity-20">
-            <h3 class="w-full text-3xl font-bold mb-6 text-center text-white text-shadow-xs">Biểu đồ nhiệt độ</h3>
-            <canvas id="tempChart" class="max-h-96"></canvas>
-        </section>
+      <!-- Rain & Air cards -->
+      <div class="grid cards-4">
+        <article class="card">
+          <h3>Lượng mưa</h3>
+          <ul class="spec-list">
+            <li>Xác suất mưa: <strong id="pop">--</strong></li>
+            <li>1 giờ: <strong id="rain1h">--</strong></li>
+            <li>3 giờ: <strong id="rain3h">--</strong></li>
+            <li>24 giờ: <strong id="rain24h">--</strong></li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>UV & AQI</h3>
+          <ul class="spec-list">
+            <li>UV: <strong id="uvIndex">--</strong> <span id="uvLabel" class="tag">--</span></li>
+            <li>AQI: <strong id="aqiValue">--</strong> <span id="aqiLabel" class="tag">--</span></li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Mặt trời</h3>
+          <ul class="spec-list">
+            <li>Bình minh: <strong id="sunrise">--</strong></li>
+            <li>Hoàng hôn: <strong id="sunset">--</strong></li>
+            <li>Độ dài ngày: <strong id="dayLength">--</strong></li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Tình huống</h3>
+          <ul id="currentFlags" class="flags">
+            <!-- JS thêm: nóng bức / mưa lớn / giông / gió mạnh -->
+          </ul>
+        </article>
+      </div>
 
-        <!-- Humidity Chart Section -->
-        <section class="bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-7 rounded-4xl shadow-lg w-full max-w-6xl mb-12 transform transition-all duration-1000 scale-95 opacity-0 border border-white border-opacity-20">
-            <h3 class="w-full text-3xl font-bold mb-6 text-center text-white text-shadow-xs">Biểu đồ độ ẩm</h3>
-            <canvas id="humidityChart" class="max-h-96"></canvas>
-        </section>
+      <!-- Outfit quick suggestions (fill chỗ trống tab hiện tại) -->
+      <section class="card outfit-inline">
+        <h3>🧥 Gợi ý trang phục nhanh</h3>
+        <ul id="adviceList" class="advice-list">
+          <!-- JS tạo danh sách dựa trên nhiệt độ + mưa + gió + UV -->
+        </ul>
+      </section>
 
-        <!-- Advice Box Section -->
-        <section class="advice bg-white bg-opacity-15 backdrop-filter backdrop-blur-2xl p-8 rounded-4xl shadow-lg w-full max-w-2xl transform transition-all duration-1000 scale-95 opacity-0 border border-white border-opacity-20 animate-fade-in-up-delay-3" id="adviceBox">
-            <h3 class="text-3xl font-bold mb-6 text-white text-shadow-xs">🛍️ Gợi ý đồ dùng:</h3>
-            <ul id="adviceList" class="text-white text-xl list-disc list-inside space-y-3">
-                <!-- Advice items will be injected here by JavaScript -->
-            </ul>
-        </section>
-    </main>
+      <!-- Quick favorites row -->
+      <section class="card">
+        <h3>Thành phố yêu thích</h3>
+        <div id="favoritesRow" class="chips"></div>
+      </section>
+    </section>
 
-    <!-- Footer Section -->
-    <footer class="w-full bg-gray-900 bg-opacity-60 p-5 text-center text-white text-md rounded-t-4xl mt-auto shadow-inner-sm">
-        <p>© 2025 Copyright by Minh Quân  | GitHub Pages</p>
-    </footer>
+    <!-- ======= TAB: DỰ BÁO ======= -->
+    <section id="tab-forecast" class="tab-panel" role="tabpanel" aria-labelledby="forecast">
+      <header class="section-head">
+        <h2>Dự báo chi tiết</h2>
+        <div class="head-actions">
+          <div class="segmented">
+            <button class="seg is-active" data-range="24h">24 giờ</button>
+            <button class="seg" data-range="48h">48 giờ</button>
+            <button class="seg" data-range="7d">7 ngày</button>
+          </div>
+          <div class="segmented">
+            <button class="seg is-active" data-unit="metric">°C</button>
+            <button class="seg" data-unit="imperial">°F</button>
+          </div>
+        </div>
+      </header>
 
-    <!-- JavaScript file -->
-    <script src="app.js"></script>
+      <!-- Hourly timeline (chẵn số khung cho cân đối: 16) -->
+      <section class="card">
+        <h3>Dự báo theo giờ</h3>
+        <div id="hourlyForecast" class="hourly-grid">
+          <!-- JS render 16 ô: giờ | nhiệt độ | POP | mưa | gió -->
+        </div>
+        <div class="legend">
+          <span class="dot temp"></span> Nhiệt độ
+          <span class="dot rain"></span> Mưa (mm)
+          <span class="dot wind"></span> Gió
+        </div>
+      </section>
+
+      <!-- Daily forecast (7 ngày) -->
+      <section class="card">
+        <h3>Dự báo 7 ngày</h3>
+        <div id="dailyForecast" class="daily-list">
+          <!-- mỗi item: ngày | min–max | pop | mô tả -->
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="grid charts">
+        <article class="card">
+          <h3>Biểu đồ nhiệt độ</h3>
+          <canvas id="tempChart" height="220"></canvas>
+        </article>
+        <article class="card">
+          <h3>Biểu đồ độ ẩm</h3>
+          <canvas id="humidityChart" height="220"></canvas>
+        </article>
+        <article class="card">
+          <h3>Biểu đồ lượng mưa</h3>
+          <canvas id="rainChart" height="220"></canvas>
+        </article>
+        <article class="card">
+          <h3>Biểu đồ UV</h3>
+          <canvas id="uvChart" height="220"></canvas>
+        </article>
+      </section>
+    </section>
+
+    <!-- ======= TAB: TIN TỨC ======= -->
+    <section id="tab-news" class="tab-panel" role="tabpanel" aria-labelledby="news">
+      <header class="section-head">
+        <h2>Tin tức thời tiết theo thời gian thực</h2>
+        <div class="head-actions">
+          <span id="newsUpdatedAt" class="muted">Cập nhật: --</span>
+          <button id="newsRefreshBtn" class="btn ghost">↻ Làm mới</button>
+        </div>
+      </header>
+
+      <div class="grid cards-4">
+        <article class="card news-col">
+          <header><h3>Miền Bắc</h3></header>
+          <ul id="newsNorth" class="news-list"></ul>
+        </article>
+        <article class="card news-col">
+          <header><h3>Miền Trung</h3></header>
+          <ul id="newsCentral" class="news-list"></ul>
+        </article>
+        <article class="card news-col">
+          <header><h3>Miền Nam</h3></header>
+          <ul id="newsSouth" class="news-list"></ul>
+        </article>
+        <article class="card news-col">
+          <header><h3>Biển Đông</h3></header>
+          <ul id="newsSea" class="news-list"></ul>
+        </article>
+      </div>
+
+      <section class="card">
+        <h3>Tin quốc tế</h3>
+        <ul id="newsWorld" class="news-list"></ul>
+      </section>
+    </section>
+
+    <!-- ======= TAB: THIÊN VĂN ======= -->
+    <section id="tab-astronomy" class="tab-panel" role="tabpanel" aria-labelledby="astronomy">
+      <header class="section-head">
+        <h2>Thiên văn (tính toán theo NASA)</h2>
+        <span id="astroDate" class="muted">Ngày: --</span>
+      </header>
+
+      <div class="grid cards-4">
+        <article class="card">
+          <h3>Pha Mặt Trăng</h3>
+          <p id="moonPhase">--</p>
+          <p class="muted" id="moonIllumination">Độ chiếu sáng: --</p>
+        </article>
+        <article class="card">
+          <h3>Cung hoàng đạo</h3>
+          <p id="zodiacSign">--</p>
+          <p class="muted" id="zodiacDateRange">--</p>
+        </article>
+        <article class="card">
+          <h3>Ngày Julian</h3>
+          <p id="julianDate">--</p>
+        </article>
+        <article class="card">
+          <h3>Độ dài ban ngày</h3>
+          <p id="astroDayLength">--</p>
+        </article>
+        <article class="card">
+          <h3>Trăng non</h3>
+          <p id="newMoon">--</p>
+        </article>
+        <article class="card">
+          <h3>Trăng tròn</h3>
+          <p id="fullMoon">--</p>
+        </article>
+        <article class="card">
+          <h3>Độ nghiêng quỹ đạo</h3>
+          <p id="moonTilt">--</p>
+        </article>
+        <article class="card">
+          <h3>Tiết khí</h3>
+          <p id="solarTerm">--</p>
+        </article>
+      </div>
+
+      <section class="card">
+        <h3>Giải thích</h3>
+        <p class="muted">
+          Pha trăng, ngày Julian, hoàng đạo… được tính toán nội suy theo thuật toán thiên văn học (nguồn NASA).
+          Kết quả phụ thuộc vị trí và múi giờ của bạn.
+        </p>
+      </section>
+    </section>
+
+    <!-- ======= TAB: TRANG PHỤC ======= -->
+    <section id="tab-outfit" class="tab-panel" role="tabpanel" aria-labelledby="outfit">
+      <header class="section-head">
+        <h2>Gợi ý trang phục theo điều kiện thời tiết</h2>
+        <p class="muted">Kết hợp nhiệt độ, độ ẩm, mưa, gió, UV để đưa khuyến nghị thực tế.</p>
+      </header>
+
+      <div class="grid cards-3">
+        <article class="card outfit-card">
+          <h3>☀️ Nắng nóng</h3>
+          <ul>
+            <li>Áo thun mỏng, thoáng mát</li>
+            <li>Quần short nhẹ</li>
+            <li>Mũ rộng vành, kính râm</li>
+            <li>Kem chống nắng, mang nước</li>
+          </ul>
+        </article>
+        <article class="card outfit-card">
+          <h3>🌧️ Mưa</h3>
+          <ul>
+            <li>Áo mưa mỏng/áo mưa bộ</li>
+            <li>Ô/dù (tránh khi gió mạnh)</li>
+            <li>Giày dép chống thấm</li>
+            <li>Túi chống nước đồ điện tử</li>
+          </ul>
+        </article>
+        <article class="card outfit-card">
+          <h3>❄️ Lạnh</h3>
+          <ul>
+            <li>Áo khoác dày/áo len</li>
+            <li>Khăn quàng, găng tay, mũ len</li>
+            <li>Giày giữ ấm</li>
+          </ul>
+        </article>
+
+        <article class="card outfit-card">
+          <h3>🌫️ Sương mù</h3>
+          <ul>
+            <li>Áo khoác giữ ấm</li>
+            <li>Khẩu trang lọc bụi</li>
+            <li>Đèn xe sáng, đi chậm</li>
+          </ul>
+        </article>
+        <article class="card outfit-card">
+          <h3>💨 Gió mạnh</h3>
+          <ul>
+            <li>Áo khoác chắn gió</li>
+            <li>Tránh dùng ô/dù</li>
+            <li>Giữ chặt mũ/nón</li>
+          </ul>
+        </article>
+        <article class="card outfit-card">
+          <h3>🌤️ Ôn hòa</h3>
+          <ul>
+            <li>Áo sơ mi/thun</li>
+            <li>Quần jean/kaki</li>
+            <li>Giày thể thao</li>
+            <li>Áo khoác mỏng buổi tối</li>
+          </ul>
+        </article>
+      </div>
+
+      <section class="card">
+        <h3>Gợi ý tự động</h3>
+        <ul id="outfitAutoList" class="advice-list"><!-- JS render theo điều kiện --></ul>
+      </section>
+    </section>
+
+    <!-- ======= TAB: CÀI ĐẶT ======= -->
+    <section id="tab-settings" class="tab-panel" role="tabpanel" aria-labelledby="settings">
+      <header class="section-head">
+        <h2>Cài đặt</h2>
+      </header>
+
+      <div class="grid cards-3">
+        <article class="card">
+          <h3>Đơn vị</h3>
+          <div class="segmented" role="group" aria-label="Đơn vị">
+            <button class="seg is-active unit-btn" data-unit="metric">°C, km/h</button>
+            <button class="seg unit-btn" data-unit="imperial">°F, mph</button>
+          </div>
+          <p class="muted">Lưu vào trình duyệt để tự áp dụng lần sau.</p>
+        </article>
+
+        <article class="card">
+          <h3>Giao diện</h3>
+          <div class="segmented" role="group" aria-label="Theme">
+            <button class="seg theme-btn is-active" data-theme="blue">Xanh dương</button>
+            <button class="seg theme-btn" data-theme="purple">Tím</button>
+            <button class="seg theme-btn" data-theme="dark">Tối</button>
+            <button class="seg theme-btn" data-theme="pastel">Pastel</button>
+          </div>
+          <p class="muted">Màu sắc hài hòa, dịu mắt; có dark mode.</p>
+        </article>
+
+        <article class="card">
+          <h3>Yêu thích / Lịch sử</h3>
+          <div class="block">
+            <h4>Thành phố yêu thích</h4>
+            <div id="savedCities" class="chips"></div>
+          </div>
+          <div class="block">
+            <h4>Lịch sử tìm kiếm</h4>
+            <div id="searchHistory" class="chips"></div>
+          </div>
+          <div class="row gap">
+            <button id="clearFavoritesBtn" class="btn ghost">Xóa yêu thích</button>
+            <button id="clearHistoryBtn" class="btn ghost">Xóa lịch sử</button>
+          </div>
+        </article>
+      </div>
+
+      <section class="card">
+        <h3>Gợi ý cá nhân hóa</h3>
+        <p class="muted">
+          Ứng dụng có thể hiển thị mẹo theo thói quen (ví dụ: hay đi xe máy khi mưa → nhắc mang áo mưa mỏng).
+          Bật/tắt trong phần JS nếu bạn muốn thu gọn.
+        </p>
+      </section>
+    </section>
+  </main>
+
+  <!-- ======================= FOOTER ======================= -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="container">
+      <p>© 2025 Copyright by Minh Quân • Feedback: <a href="mailto:24521449@gm.uit.edu.vn">24521449@gm.uit.edu.vn</a></p>
+      <p class="muted">Triển khai trên GitHub Pages. Dữ liệu thời tiết từ OpenWeather; tin tức tổng hợp từ RSS báo chí Việt Nam.</p>
+    </div>
+  </footer>
+
+  <!-- JS chính -->
+  <script src="app.js"></script>
 </body>
 </html>

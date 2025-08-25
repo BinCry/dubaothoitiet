@@ -1,0 +1,49 @@
+//  *****Các cập nhật tính năng ngày 26 tháng 8 năm 2025*****
+ 
+ 1. Thêm hiển thị thông tin về lượng mưa
+ 2. Chỉnh sửa lại giao diện người dùng, tối ưu hóa hệ thống
+ 3. Chỉnh sửa lỗi hiển thị trên điện thoại và lỗi tính năng
+
+
+
+// *****Thông tin chi tiết*****
+
+1. Có thể hiển thị cả tỉ lệ % mưa, tổng lượng mưa trong 3h/24h, và vẽ thêm biểu đồ lượng mưa song song với nhiệt độ/độ ẩm.
+
+2. Yêu thích / lưu lịch sử tìm kiếm
+
+Cho phép người dùng lưu nhanh thành phố hay tra cứu gần đây.
+
+Khi mở lại app thì chỉ cần 1 click để chọn.
+
+3. Tùy chỉnh đơn vị
+
+Cho người dùng chuyển đổi °C ↔ °F, m/s ↔ km/h.
+
+Cài đặt này lưu vào localStorage để lần sau tự áp dụng.
+
+4. Cảnh báo thời tiết đặc biệt
+
+Nếu nhiệt độ > 37°C, hoặc mưa bão, giông → hiển thị banner “⚠️ Cảnh báo nóng bức / mưa lớn”.
+
+API OpenWeather cũng có endpoint alerts (trả về theo region).
+
+5. Cập nhật thêm chỉ số
+
+Độ nhìn xa (visibility).
+
+Chỉ số “feels like” (có sẵn trong API nhưng bạn chưa render nổi bật).
+
+Chỉ số sức gió (gale, bão) để cảnh báo.
+
+6. Tối ưu giao diện mobile
+
+7. Fix thanh tìm kiếm và nút đóng menu.
+
+Thêm “bottom sheet” (thanh kéo lên) để xem nhanh thông tin.
+
+8. Cá nhân hóa
+
+Gợi ý dựa trên thói quen: ví dụ nếu trời mưa và người dùng thường đi xe máy → hiện tip “Mang áo mưa mỏng nhẹ”.
+
+Cho phép chọn theme màu (xanh dương, tím, pastel…) để phù hợp sở thích.
