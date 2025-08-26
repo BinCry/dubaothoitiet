@@ -1076,8 +1076,30 @@ function init(){
   loadNews(); // tin tức
   observeCharts(); // theo dõi kích thước vùng charts
 }
+   /* ===== Scroll Lock helpers ===== */
+let __scrollY = 0;
 
+function lockBodyScroll(){
+  __scrollY = window.scrollY || 0;
+  document.body.classList.add('body-locked');
+  document.body.style.top = `-${__scrollY}px`;
+}
+
+function unlockBodyScroll(){
+  document.body.classList.remove('body-locked');
+  document.body.style.top = '';
+  window.scrollTo(0, __scrollY || 0);
+}
+
+/* ===== Mở/đóng drawer: khóa/khôi phục cuộn nền ===== */
+function openDrawer(open = true){
+  el.drawer.classList.toggle('open', open);
+  el.drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+  if (open) lockBodyScroll(); else unlockBodyScroll();
+}
 /* =======================
    18) START
    ======================= */
+
 document.addEventListener('DOMContentLoaded', init);
+

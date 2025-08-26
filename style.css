@@ -384,3 +384,47 @@ input{ font:inherit; color:inherit; }
   animation: shine 1.2s infinite;
 }
 @keyframes shine{ from{ transform: translateX(-100%);} to{ transform: translateX(100%);} }
+/* Vá lỗi */
+/* ==== SCROLL: chỉ 1 nơi được cuộn ở mỗi trạng thái ==== */
+
+/* 1) Mặc định: để body cuộn, tránh leak/chain scroll */
+html, body { min-height: 100dvh; height: auto; }
+body { overscroll-behavior-y: none; }
+
+/* 2) Không tạo cuộn lồng không cần thiết trong panel/tab */
+.tab-panel { overflow: visible; }
+
+/* 3) Drawer là vùng cuộn độc lập, không lan xuống nền */
+.drawer{
+  height: 100dvh;                  /* full màn hình để không lộ nền */
+  overflow: auto;                  /* drawer tự cuộn */
+  overscroll-behavior: contain;    /* chặn cuộn “dây chuyền” xuống body */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* (Nếu bạn có wrapper bên trong drawer, thêm class này cho wrapper đó)
+.drawer-scroll{
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+*/
+
+/* 4) Khi khóa nền (drawer/popup mở): body cố định, không cuộn */
+.body-locked{
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* 5) Các container lớn KHÔNG nên tự tạo thanh cuộn dọc.
+   Nếu bạn đã set ở đâu đó: overflow:auto; cho container tab chính,
+   hãy chuyển về visible. (Giữ overflow-x cho vùng cần cuộn ngang) */
+.app-main { overflow: visible; }
+
+/* 6) Vùng cuộn ngang hợp lệ (giữ nguyên) */
+.hourly-grid{ overflow-x: auto; }
+
+/* 7) Chống tràn biểu đồ/canvas -> đã ok, giữ nguyên, không cần thay */
